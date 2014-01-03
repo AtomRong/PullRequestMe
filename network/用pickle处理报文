@@ -1,0 +1,20 @@
+向某个socket发送 字节流
+**sck.sendall( pickle.dumps( db )  )**
+
+dump()是把对象 写到本地文件，这是我们不想要的。
+
+dumps() 是把对象 写到一个 字节流中，就是str这种类型。
+
+同理，解读报文的时候：
+s = sck.recv( 1024 )    #缓冲区大小为 1024
+data = pickle.loads( s ) #把字节流还原为一个对象。
+    
+    
+注意事项： s= sck.recv( bufSize )
+若 buf 大小不足以容纳整个 pickle 的字节流， 那么直接loads（s）会抛出 EOFError。
+两种解决方法：
+    1、将bufize设置的足够大，并且 发送方要限制 pickle字节流的大小。
+    2、接受方 处理字节流的时候判断 字节流中是否含有至少一个 完整的pickle对象。
+        Pickle 每次序列化生成的字符串有独立头尾，pickle.load() 只会读取一个完整的结果，
+        所以你只需要在 load 一次之后再 load 一次，就能读到第二次序列化的 ['asd', ('ss', 'dd')]。
+        如果不知道文件里有多少 pickle 对象，可以在 while 循环中反复 load 文件对象，直到抛出异常为止。
